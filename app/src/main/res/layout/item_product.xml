@@ -38,7 +38,7 @@
         android:id="@+id/product_rent_price"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1" android:text="Giá thuê: $30"
+        android:layout_weight="1" android:text="Giảm giá: $30"
         android:textSize="14sp"
         android:textColor="#4CAF50"
         android:paddingTop="2dp" />
