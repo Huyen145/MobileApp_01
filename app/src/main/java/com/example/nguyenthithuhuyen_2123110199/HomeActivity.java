@@ -10,6 +10,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -19,23 +24,36 @@ public class HomeActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home);
 
-        // Xử lý các padding cho system bars
+        // Xử lý padding system bars
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // Tìm button và gắn sự kiện khi bấm
+        // Nút Back quay về HomeActivity1
         Button btn_back = findViewById(R.id.btn_back);
-        btn_back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Tạo Intent để chuyển từ HomeActivity sang MainActivity
-                Intent it = new Intent(getApplicationContext(), HomeActivity1.class);
-                startActivity(it);  // Dùng startActivity thay vì startActivities
-            }
+        btn_back.setOnClickListener(v -> {
+            Intent it = new Intent(getApplicationContext(), HomeActivity1.class);
+            startActivity(it);
         });
+
+
+        // Bước 1: Gắn RecyclerView
+        RecyclerView recyclerView = findViewById(R.id.checkoutRecyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+
+// Bước 2: Khởi tạo danh sách và adapter
+        List<Product> relatedList = new ArrayList<>();
+        relatedList.add(new Product("Ốp lưng iPhone", "", "₫300,000", R.drawable.op));
+        relatedList.add(new Product("Tai nghe Bluetooth", "", "₫150,000", R.drawable.tainghe));
+// ... thêm sản phẩm nếu muốn
+
+        ProductAdapter adapter = new ProductAdapter(this, relatedList);
+
+// Bước 3: Gán adapter vào RecyclerView
+        recyclerView.setAdapter(adapter);
+
 
     }
 }

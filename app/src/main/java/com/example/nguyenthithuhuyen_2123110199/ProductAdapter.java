@@ -1,6 +1,7 @@
 package com.example.nguyenthithuhuyen_2123110199;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,7 +48,17 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.nameView.setText(product.getName());
         holder.sellPriceView.setText(product.getSellPrice());
         holder.rentPriceView.setText(product.getRentPrice());
+
+        holder.imageView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, Product_Detail.class);
+            intent.putExtra("name", product.getName());
+            intent.putExtra("sellPrice", product.getSellPrice());
+            intent.putExtra("rentPrice", product.getRentPrice());
+            intent.putExtra("imageResId", product.getImageResId());
+            context.startActivity(intent);
+        });
     }
+
 
     @Override
     public int getItemCount() {
