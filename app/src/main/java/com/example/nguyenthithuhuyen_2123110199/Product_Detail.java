@@ -66,6 +66,8 @@ public class Product_Detail extends AppCompatActivity {
         List<Product> relatedList = new ArrayList<>();
         relatedList.add(new Product("Ốp lưng iPhone", "₫350,000", "₫300,000", R.drawable.op));
         relatedList.add(new Product("Tai nghe Bluetooth", "₫2,500,000", "₫150,000", R.drawable.tainghe));
+        relatedList.add(new Product("Điện thoại Iphone", "Giá bán: 15,000,000 ₫", "Giảm giá: Không áp dụng", R.drawable.dienthoai));
+        relatedList.add(new Product("Tai nghe Bluetooth Pro", "Giá bán: 2,500,000 ₫", "Giảm giá: 150,000 ₫", R.drawable.tainghe));
         // ... bạn có thể thêm nhiều sản phẩm tùy ý
 
         ProductAdapter adapter = new ProductAdapter(this, relatedList);

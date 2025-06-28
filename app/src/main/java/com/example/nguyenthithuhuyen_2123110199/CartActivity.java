@@ -7,8 +7,13 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CartActivity extends AppCompatActivity {
 
@@ -53,6 +58,19 @@ public class CartActivity extends AppCompatActivity {
                 return true;
             });
         }
+        RecyclerView recyclerView = findViewById(R.id.checkoutRecyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+
+// Bước 2: Khởi tạo danh sách và adapter
+        List<Product> relatedList = new ArrayList<>();
+        relatedList.add(new Product("Ốp lưng iPhone", "", "₫300,000", R.drawable.op));
+        relatedList.add(new Product("Tai nghe Bluetooth", "", "₫150,000", R.drawable.tainghe));
+// ... thêm sản phẩm nếu muốn
+
+        ProductAdapter adapter = new ProductAdapter(this, relatedList);
+
+// Bước 3: Gán adapter vào RecyclerView
+        recyclerView.setAdapter(adapter);
     }
 
 }

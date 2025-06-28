@@ -69,10 +69,13 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/checkoutRecyclerView"
-            android:layout_width="match_parent"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
+            android:maxHeight="200dp"
             android:layout_marginBottom="16dp"
-            android:nestedScrollingEnabled="false" />
+            android:nestedScrollingEnabled="false"
+            android:overScrollMode="never" />
+
 
         <!-- Phương thức thanh toán -->
         <TextView
@@ -110,7 +113,7 @@
             android:id="@+id/tvTotalAmount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tổng cộng: 0 ₫"
+            android:text="Tổng cộng: 474.000 ₫"
             android:textStyle="bold"
             android:textSize="17sp"
             android:textColor="#D32F2F"
