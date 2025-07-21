@@ -2,74 +2,150 @@ package com.example.nguyenthithuhuyen_2123110199;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
+import android.util.Log;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class HomeActivity1 extends AppCompatActivity {
-    private RecyclerView recyclerView;
-    private ProductAdapter adapter;
-    private List<Product> productList;
+
+    RecyclerView recyclerView;
+    ProductAdapter adapter;
+    List<Product> productList;
+    List<Product> filteredList;
+
+    RequestQueue requestQueue;
+
+    private final String PRODUCT_API_URL = "https://6868e205d5933161d70cb9e2.mockapi.io/products";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home1);
 
-        initRecyclerView();
+        setupCategoryClickListeners();
+
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+
+        productList = new ArrayList<>();
+        filteredList = new ArrayList<>();
+
+        adapter = new ProductAdapter(this, filteredList);
+        recyclerView.setAdapter(adapter);
+
+        requestQueue = Volley.newRequestQueue(this);
+        fetchProductsFromApi();
+
         setupBottomNavigation();
+        setupSearchFeature(); // 🆕 Tìm kiếm theo EditText + ImageView
     }
 
-    private void initRecyclerView() {
-        recyclerView = findViewById(R.id.recyclerView);
-        if (recyclerView == null) {
-            // Bạn có thể bật log hoặc thông báo nếu recyclerView bị null
-            return;
-        }
+    private void setupCategoryClickListeners() {
+        LinearLayout phoneCategory = findViewById(R.id.categoryPhone);
+        LinearLayout watchCategory = findViewById(R.id.categoryWatch);
+        LinearLayout headphoneCategory = findViewById(R.id.categoryHeadphone);
+        LinearLayout laptopCategory = findViewById(R.id.categoryLaptop);
 
-        productList = getSampleProducts();
-        adapter = new ProductAdapter(this, productList);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        recyclerView.setAdapter(adapter);
+        phoneCategory.setOnClickListener(v -> openCategory("Điện thoại"));
+        watchCategory.setOnClickListener(v -> openCategory("Phụ kiện"));
+        headphoneCategory.setOnClickListener(v -> openCategory("Tai nghe"));
+        laptopCategory.setOnClickListener(v -> openCategory("Laptop"));
+    }
+
+    private void openCategory(String category) {
+        Intent intent = new Intent(HomeActivity1.this, ProductByCategoryActivity.class);
+        intent.putExtra("category", category);
+        startActivity(intent);
     }
 
     private void setupBottomNavigation() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        if (bottomNavigationView == null) return;
-
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.nav_home) {
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_home) {
                 return true;
-            } else if (itemId == R.id.nav_cart) {
-                startActivity(new Intent(this, CartActivity.class));
-            } else if (itemId == R.id.nav_account) {
-                startActivity(new Intent(this, AccountActivity.class));
-            } else {
-                return false;
+            } else if (id == R.id.nav_cart) {
+                startActivity(new Intent(HomeActivity1.this, CartActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+            } else if (id == R.id.nav_account) {
+                startActivity(new Intent(HomeActivity1.this, AccountActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
             }
-
-            overridePendingTransition(0, 0);
-            return true;
+            return false;
         });
     }
 
-    private List<Product> getSampleProducts() {
-        List<Product> list = new ArrayList<>();
-        list.add(new Product("Điện thoại Iphone", "Giá bán: 15,000,000 ₫", "Giảm giá: Không áp dụng", R.drawable.dienthoai));
-        list.add(new Product("Tai nghe Bluetooth Pro", "Giá bán: 2,500,000 ₫", "Giảm giá: 150,000 ₫", R.drawable.tainghe));
-        list.add(new Product("Sạc dự phòng siêu tốc", "Giá bán: 800,000 ₫", "Giảm giá: Không áp dụng", R.drawable.sac));
-        list.add(new Product("Ốp lưng iPhone 15", "Giá bán: 350,000 ₫", "Giảm giá: Không áp dụng", R.drawable.op));
-        return list;
+    private void setupSearchFeature() {
+        EditText edtSearch = findViewById(R.id.searchView);  // EditText dùng để nhập từ khóa
+        ImageView imgSearch = findViewById(R.id.imgSearch);  // ImageView để nhấn tìm
+
+        imgSearch.setOnClickListener(v -> {
+            String keyword = edtSearch.getText().toString().trim();
+            filterProducts(keyword);
+        });
+    }
+
+    private void filterProducts(String query) {
+        filteredList.clear();
+        if (query.isEmpty()) {
+            filteredList.addAll(productList);
+        } else {
+            String lowerQuery = query.toLowerCase();
+            for (Product product : productList) {
+                if (product.getProductName().toLowerCase().contains(lowerQuery)) {
+                    filteredList.add(product);
+                }
+            }
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    private void fetchProductsFromApi() {
+        JsonArrayRequest request = new JsonArrayRequest(
+                Request.Method.GET,
+                PRODUCT_API_URL,
+                null,
+                response -> {
+                    productList.clear();
+                    filteredList.clear();
+
+                    for (int i = 0; i < response.length(); i++) {
+                        try {
+                            JSONObject obj = response.getJSONObject(i);
+                            Product product = Product.fromJson(obj);
+                            productList.add(product);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    filteredList.addAll(productList); // ban đầu hiển thị tất cả
+                    adapter.notifyDataSetChanged();
+                },
+                error -> Log.e("FetchProducts", "Lỗi khi gọi API: " + error.toString())
+        );
+
+        requestQueue.add(request);
     }
 }

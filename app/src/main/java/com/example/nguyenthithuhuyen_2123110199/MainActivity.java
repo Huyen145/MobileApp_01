@@ -1,6 +1,7 @@
 package com.example.nguyenthithuhuyen_2123110199;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -36,6 +37,12 @@ public class MainActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         TextView tvRegister = findViewById(R.id.tvRegister);
+        TextView tvForgotPassword = findViewById(R.id.tvForgotPassword);
+
+        tvForgotPassword.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ForgotPasswordActivity.class);
+            startActivity(intent);
+        });
 
         // Mở màn hình đăng ký
         tvRegister.setOnClickListener(v ->
@@ -73,12 +80,14 @@ public class MainActivity extends AppCompatActivity {
                                 found = true;
                                 Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
                                 // Lưu thông tin nếu cần
-                                getSharedPreferences("user", MODE_PRIVATE)
-                                        .edit()
-                                        .putBoolean("isLoggedIn", true)
-                                        .putString("username", name)
-                                        .putString("userId", user.getString("id"))
-                                        .apply();
+                                // Lưu toàn bộ thông tin người dùng vào SharedPreferences
+                                SharedPreferences.Editor editor = getSharedPreferences("user", MODE_PRIVATE).edit();
+                                editor.putBoolean("isLoggedIn", true);
+                                editor.putString("username", name);
+                                editor.putString("userId", user.getString("id"));
+                                editor.putString("userInfo", user.toString());  // Lưu toàn bộ JSON object người dùng
+                                editor.apply();
+
                                 startActivity(new Intent(this, HomeActivity1.class));
                                 break;
                             }

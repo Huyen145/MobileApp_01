@@ -14,10 +14,19 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Register extends AppCompatActivity {
 
     EditText phoneInput, fullnameInput, emailInput, passwordInput, rePasswordInput;
     Button registerButton;
+    String apiUrl = "https://6868e205d5933161d70cb9e2.mockapi.io/users";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,9 +39,9 @@ public class Register extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
-        // Ánh xạ view
         phoneInput = findViewById(R.id.phoneInput);
         fullnameInput = findViewById(R.id.fullnameInput);
         emailInput = findViewById(R.id.emailInput);
@@ -40,7 +49,6 @@ public class Register extends AppCompatActivity {
         rePasswordInput = findViewById(R.id.rePasswordInput);
         registerButton = findViewById(R.id.registerButton);
 
-        // Bắt sự kiện nhấn nút Đăng ký
         registerButton.setOnClickListener(v -> {
             String phone = phoneInput.getText().toString().trim();
             String name = fullnameInput.getText().toString().trim();
@@ -78,9 +86,40 @@ public class Register extends AppCompatActivity {
                 return;
             }
 
-            Toast.makeText(Register.this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
-             startActivity(new Intent(Register.this, MainActivity.class));
-             finish();
+            // Gửi dữ liệu lên MockAPI
+            registerUser(name, phone, email, password);
         });
+    }
+
+    private void registerUser(String name, String phone, String email, String password) {
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        JSONObject userObject = new JSONObject();
+        try {
+            userObject.put("name", name);
+            userObject.put("phone", phone);
+            userObject.put("email", email);
+            userObject.put("password", password);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Lỗi tạo JSON", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.POST,
+                apiUrl,
+                userObject,
+                response -> {
+                    Toast.makeText(Register.this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(Register.this, MainActivity.class));
+                    finish();
+                },
+                error -> {
+                    Toast.makeText(Register.this, "Lỗi kết nối hoặc email đã tồn tại", Toast.LENGTH_SHORT).show();
+                }
+        );
+
+        queue.add(request);
     }
 }

@@ -143,6 +143,23 @@
                 android:textColor="#616161"
                 android:lineSpacingExtra="4dp"
                 android:layout_marginTop="12dp" />
+            <TextView
+                android:id="@+id/product_quantity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Kho: 0"
+                android:textSize="14sp"
+                android:textColor="#424242"
+                android:layout_marginTop="8dp" />
+
+            <TextView
+                android:id="@+id/product_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Lượt xem: 0"
+                android:textSize="14sp"
+                android:textColor="#424242"
+                android:layout_marginTop="4dp" />
 
             <TextView
                 android:text="Sản phẩm liên quan"
@@ -189,9 +206,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="🛍️ Mua ngay"
+                android:text=" Mua ngay"
                 android:textColor="#FFFFFF"
-                android:backgroundTint="#4CAF50"
+                android:backgroundTint="#4A90E2"
                 android:textStyle="bold"
                 android:layout_marginStart="8dp" />
         </LinearLayout>

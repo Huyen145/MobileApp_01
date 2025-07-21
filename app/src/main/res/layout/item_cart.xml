@@ -17,7 +17,7 @@
 
         <!-- Ảnh sản phẩm -->
         <ImageView
-            android:id="@+id/imgProduct"
+            android:id="@+id/cartItemImage"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:scaleType="centerCrop"
@@ -33,7 +33,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tvProductName"
+                android:id="@+id/cartItemName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Tên sản phẩm"
@@ -44,7 +44,8 @@
                 android:textColor="#212121" />
 
             <TextView
-                android:id="@+id/tvProductPrice"
+                android:id="@+id/cartItemPrice"
+
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="₫1.000.000"
@@ -98,3 +99,4 @@
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>
+

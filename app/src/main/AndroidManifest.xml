@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,10 +15,22 @@
         android:theme="@style/Theme.NguyenThiThuHuyen_2123110199"
         tools:targetApi="31">
         <activity
-            android:name=".AccountActivity"
+            android:name=".ForgotPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".UpdateAccountActivity"
             android:exported="false" />
         <activity
             android:name=".CartActivity"
+            android:exported="false" />
+        <activity
+            android:name=".HomeActivity1"
+            android:exported="false" />
+        <activity
+            android:name=".ProductByCategoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AccountActivity"
             android:exported="false" />
         <activity
             android:name=".Register"
@@ -24,10 +38,6 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".Product_Detail"
-            android:exported="false" />
-
-        <activity
-            android:name=".HomeActivity1"
             android:exported="false" />
         <activity
             android:name=".HomeActivity"

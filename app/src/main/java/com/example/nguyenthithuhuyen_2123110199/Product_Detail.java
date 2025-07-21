@@ -3,27 +3,45 @@ package com.example.nguyenthithuhuyen_2123110199;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class Product_Detail extends AppCompatActivity {
+
+    private List<Product> relatedList = new ArrayList<>();
+    private ProductAdapter adapter;
+    private RecyclerView relatedProductsRecycler;
+
+    private String currentCategory = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // ✅ Kiểm tra đăng nhập
         SharedPreferences preferences = getSharedPreferences("user", MODE_PRIVATE);
         boolean isLoggedIn = preferences.getBoolean("isLoggedIn", false);
 
@@ -34,47 +52,63 @@ public class Product_Detail extends AppCompatActivity {
             return;
         }
 
-        // ✅ Nếu đã đăng nhập thì hiển thị giao diện
         setContentView(R.layout.activity_product_detail);
 
         // Nhận dữ liệu từ Intent
         Intent intent = getIntent();
         String name = intent.getStringExtra("name");
-        String sellPrice = intent.getStringExtra("sellPrice");
-        String rentPrice = intent.getStringExtra("rentPrice");
-        int imageResId = intent.getIntExtra("imageResId", 0);
+        int price = intent.getIntExtra("price", -1);
+        int discount = intent.getIntExtra("discount", -1);
+        String imageUrl = intent.getStringExtra("image");
+        String description = intent.getStringExtra("description");
+        int quantity = intent.getIntExtra("quantity", 0);
+        int view = intent.getIntExtra("view", 0);
+        currentCategory = intent.getStringExtra("category");
 
-        // Gán dữ liệu vào các view
+        // Ánh xạ View
         ImageView productImage = findViewById(R.id.product_image);
         TextView productName = findViewById(R.id.product_name);
         TextView productSellPrice = findViewById(R.id.product_sell_price);
         TextView productRentPrice = findViewById(R.id.product_rent_price);
+        TextView productDescription = findViewById(R.id.product_description);
+        TextView productQuantity = findViewById(R.id.product_quantity);
+        TextView productView = findViewById(R.id.product_view);
 
-        if (imageResId != 0) productImage.setImageResource(imageResId);
+        // Gán dữ liệu
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            Glide.with(this)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_launcher_background)
+                    .into(productImage);
+        }
+
+        NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+
         if (name != null) productName.setText(name);
-        if (sellPrice != null) productSellPrice.setText(sellPrice);
-        if (rentPrice != null) productRentPrice.setText(rentPrice);
+        if (price != -1) productSellPrice.setText(formatter.format(price) + " đ");
+        if (discount != -1) productRentPrice.setText(formatter.format(discount) + " đ");
+        if (description != null) productDescription.setText(description);
+        productQuantity.setText("Kho: " + quantity);
+        productView.setText("Lượt xem: " + view);
 
         // Nút quay lại
         ImageButton btnBack = findViewById(R.id.btn_back);
         btnBack.setOnClickListener(v -> finish());
 
-        // Danh sách sản phẩm liên quan
-        RecyclerView relatedProductsRecycler = findViewById(R.id.rv_related_products);
-        relatedProductsRecycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-
-        List<Product> relatedList = new ArrayList<>();
-        relatedList.add(new Product("Ốp lưng iPhone", "₫350,000", "₫300,000", R.drawable.op));
-        relatedList.add(new Product("Tai nghe Bluetooth", "₫2,500,000", "₫150,000", R.drawable.tainghe));
-        relatedList.add(new Product("Điện thoại Iphone", "Giá bán: 15,000,000 ₫", "Giảm giá: Không áp dụng", R.drawable.dienthoai));
-        relatedList.add(new Product("Tai nghe Bluetooth Pro", "Giá bán: 2,500,000 ₫", "Giảm giá: 150,000 ₫", R.drawable.tainghe));
-        // ... bạn có thể thêm nhiều sản phẩm tùy ý
-
-        ProductAdapter adapter = new ProductAdapter(this, relatedList);
+        // RecyclerView sản phẩm liên quan
+        relatedProductsRecycler = findViewById(R.id.rv_related_products);
+        relatedProductsRecycler.setLayoutManager(new GridLayoutManager(this, 2)); // 2 cột
+        adapter = new ProductAdapter(this, relatedList);
         relatedProductsRecycler.setAdapter(adapter);
+
+
+        // Gọi API lấy sản phẩm liên quan
+        fetchRelatedProducts();
+
+        // Bottom Navigation
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         if (bottomNavigationView != null) {
-            bottomNavigationView.setSelectedItemId(R.id.nav_cart);
+            bottomNavigationView.setSelectedItemId(R.id.nav_home);
             bottomNavigationView.setOnItemSelectedListener(item -> {
                 int itemId = item.getItemId();
                 if (itemId == R.id.nav_home) {
@@ -86,10 +120,55 @@ public class Product_Detail extends AppCompatActivity {
                 } else {
                     return false;
                 }
-
                 overridePendingTransition(0, 0);
                 return true;
             });
         }
+    }
+
+    private void fetchRelatedProducts() {
+        String url = "https://6868e205d5933161d70cb9e2.mockapi.io/products";
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        JsonArrayRequest request = new JsonArrayRequest(
+                Request.Method.GET, url, null,
+                response -> {
+                    relatedList.clear();
+                    try {
+                        for (int i = 0; i < response.length(); i++) {
+                            JSONObject obj = response.getJSONObject(i);
+
+                            String category = obj.getString("category");
+                            if (!category.equals(currentCategory)) continue;
+
+                            String productName = obj.getString("productName");
+                            int price = obj.getInt("price");
+                            int discount = obj.getInt("discount");
+                            String image = obj.getString("image");
+                            String description = obj.getString("description");
+                            int view = obj.getInt("view");
+                            int quantity = obj.getInt("quantity");
+
+                            relatedList.add(new Product(
+                                    productName,
+                                    price,
+                                    discount,
+                                    image,
+                                    category,
+                                    description,
+                                    view,
+                                    quantity
+                            ));
+                        }
+
+                        adapter.notifyDataSetChanged();
+                    } catch (JSONException e) {
+                        Log.e("JSON_ERROR", "Lỗi phân tích JSON: " + e.getMessage());
+                    }
+                },
+                error -> Log.e("API_ERROR", "Lỗi khi gọi API: " + error.getMessage())
+        );
+
+        queue.add(request);
     }
 }

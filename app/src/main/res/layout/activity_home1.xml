@@ -15,12 +15,14 @@
             android:padding="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
+            <!-- Địa điểm -->
             <TextView
                 android:text="Location"
                 android:textStyle="bold"
                 android:textSize="12sp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
             <TextView
                 android:text="📍TP.Hồ Chí Minh"
@@ -28,7 +30,7 @@
                 android:textColor="#333"
                 android:layout_marginBottom="12dp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
             <!-- Search Bar -->
             <androidx.cardview.widget.CardView
@@ -45,19 +47,21 @@
                     android:gravity="center_vertical">
 
                     <EditText
+                        android:id="@+id/searchView"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:minHeight="48dp"
                         android:hint="Search"
                         android:background="@null"
-                        android:paddingVertical="12dp"/>
-
+                        android:paddingVertical="12dp" />
 
                     <ImageView
+                        android:id="@+id/imgSearch"
                         android:layout_width="24dp"
-                        android:layout_height="19dp"
-                        android:background="#EB5555"
+                        android:layout_height="24dp"
+                        android:backgroundTint="#EB5555"
+                        android:padding="4dp"
                         android:src="@android:drawable/ic_menu_search" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -87,6 +91,7 @@
 
                 <!-- Điện thoại -->
                 <LinearLayout
+                    android:id="@+id/categoryPhone"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -96,16 +101,15 @@
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:src="@drawable/samsung" />
-
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Điện thoại" />
                 </LinearLayout>
 
                 <!-- Đồng hồ -->
                 <LinearLayout
+                    android:id="@+id/categoryWatch"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -115,16 +119,15 @@
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:src="@drawable/watch" />
-
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:text="Đồng hồ" />
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Phụ kiện" />
                 </LinearLayout>
 
                 <!-- Tai nghe -->
                 <LinearLayout
+                    android:id="@+id/categoryHeadphone"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -133,17 +136,16 @@
                     <ImageView
                         android:layout_width="60dp"
                         android:layout_height="60dp"
-                        android:src="@drawable/headphone" />  <!-- nhớ thêm ảnh headphone trong drawable -->
-
+                        android:src="@drawable/headphone" />
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Tai nghe" />
                 </LinearLayout>
 
                 <!-- Máy tính -->
                 <LinearLayout
+                    android:id="@+id/categoryLaptop"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -152,21 +154,17 @@
                     <ImageView
                         android:layout_width="60dp"
                         android:layout_height="60dp"
-                        android:src="@drawable/lap" />  <!-- nhớ thêm ảnh computer trong drawable -->
-
+                        android:src="@drawable/lap" />
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Máy tính" />
                 </LinearLayout>
             </LinearLayout>
-            <!-- Các phần như Location, Search, Banner, Category -->
-            <!-- ... bạn giữ nguyên phần đó ... -->
 
             <!-- Sale -->
             <TextView
-                android:text="Sale"
+                android:text="Danh sách sản phẩm"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp"
@@ -181,7 +179,7 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom Navigation luôn dưới đáy màn hình -->
+    <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
