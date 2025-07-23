@@ -79,18 +79,26 @@ public class MainActivity extends AppCompatActivity {
                             if (username.equals(name) && password.equals(pass)) {
                                 found = true;
                                 Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
-                                // Lưu thông tin nếu cần
-                                // Lưu toàn bộ thông tin người dùng vào SharedPreferences
+
+                                // Lưu thông tin người dùng vào SharedPreferences
                                 SharedPreferences.Editor editor = getSharedPreferences("user", MODE_PRIVATE).edit();
                                 editor.putBoolean("isLoggedIn", true);
-                                editor.putString("username", name);
                                 editor.putString("userId", user.getString("id"));
-                                editor.putString("userInfo", user.toString());  // Lưu toàn bộ JSON object người dùng
+                                editor.putString("fullName", user.optString("name", ""));
+                                editor.putString("phone", user.optString("phone", ""));
+                                editor.putString("address", user.optString("address", ""));
+                                editor.putString("email", user.optString("email", ""));
+
+                                // ✅ Thêm dòng này để lưu toàn bộ JSON người dùng:
+                                editor.putString("userInfo", user.toString());
+
                                 editor.apply();
 
                                 startActivity(new Intent(this, HomeActivity1.class));
+                                finish();
                                 break;
                             }
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                             Toast.makeText(this, "Lỗi phân tích dữ liệu!", Toast.LENGTH_SHORT).show();
@@ -108,4 +116,5 @@ public class MainActivity extends AppCompatActivity {
 
         mRequestQueue.add(jsonRequest);
     }
+
 }

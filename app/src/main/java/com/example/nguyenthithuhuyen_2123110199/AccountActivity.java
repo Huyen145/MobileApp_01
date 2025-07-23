@@ -44,39 +44,41 @@ public class AccountActivity extends AppCompatActivity {
         txtDob = findViewById(R.id.txtDob);
         txtUsername = findViewById(R.id.txtUsername);
 
-        // Lấy thông tin đăng nhập từ SharedPreferences
+
         SharedPreferences prefs = getSharedPreferences("user", MODE_PRIVATE);
-        boolean isLoggedIn = prefs.getBoolean("isLoggedIn", false);
+        String userJson = prefs.getString("userInfo", null);
 
-        if (!isLoggedIn) {
-            Toast.makeText(this, "Vui lòng đăng nhập!", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(this, MainActivity.class));
-            finish();
-            return;
-        }
-
-        String userJson = prefs.getString("userInfo", "");
-        if (!userJson.isEmpty()) {
+        if (userJson != null && !userJson.isEmpty()) {
             try {
                 JSONObject userObj = new JSONObject(userJson);
-                txtName.setText("Họ tên: " + userObj.optString("name"));
-                txtEmail.setText("Email: " + userObj.optString("email"));
-                txtPhone.setText("SĐT: " + userObj.optString("phone"));
-                txtAddress.setText("Địa chỉ: " + userObj.optString("address"));
-                txtGender.setText("Giới tính: " + userObj.optString("gender"));
-                txtDob.setText("Ngày sinh: " + userObj.optString("dob"));
-                txtUsername.setText("Tài khoản: " + userObj.optString("username"));
+
+                txtName.setText("Họ tên: " + userObj.optString("name", "Chưa có"));
+                txtEmail.setText("Email: " + userObj.optString("email", "Chưa có"));
+                txtPhone.setText("SĐT: " + userObj.optString("phone", "Chưa có"));
+                txtAddress.setText("Địa chỉ: " + userObj.optString("address", "Chưa có"));
+                txtGender.setText("Giới tính: " + userObj.optString("gender", "Chưa có"));
+                txtDob.setText("Ngày sinh: " + userObj.optString("dob", "Chưa có"));
+                txtUsername.setText("Tài khoản: " + userObj.optString("username", "Chưa có"));
+
             } catch (JSONException e) {
-                Toast.makeText(this, "Lỗi dữ liệu người dùng", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+                Toast.makeText(this, "Lỗi phân tích dữ liệu người dùng!", Toast.LENGTH_SHORT).show();
             }
+        } else {
+            Toast.makeText(this, "Không tìm thấy thông tin người dùng!", Toast.LENGTH_SHORT).show();
         }
+
 
         // Xử lý đăng xuất
         findViewById(R.id.logoutSection).setOnClickListener(v -> {
-            prefs.edit().clear().apply();
-            startActivity(new Intent(this, MainActivity.class));
-            finish();
+            prefs.edit().clear().apply(); // Xóa toàn bộ thông tin người dùng
+
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish(); // Đảm bảo Activity hiện tại đóng lại
         });
+
 
         // Điều hướng bằng BottomNavigation
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);

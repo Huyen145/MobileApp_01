@@ -1,5 +1,6 @@
 package com.example.nguyenthithuhuyen_2123110199;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -81,9 +82,16 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         StringRequest request = new StringRequest(
                 Request.Method.PUT,
                 updateUrl,
-                response -> Toast.makeText(this, "Cập nhật mật khẩu thành công!", Toast.LENGTH_SHORT).show(),
+                response -> {
+                    Toast.makeText(this, "Cập nhật mật khẩu thành công!", Toast.LENGTH_SHORT).show();
+
+                    // Chuyển sang trang đăng nhập
+                    Intent intent = new Intent(ForgotPasswordActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish(); // Đóng màn hình hiện tại
+                },
                 error -> Toast.makeText(this, "Cập nhật thất bại!", Toast.LENGTH_SHORT).show()
-        ) {
+        ){
             @Override
             public byte[] getBody() {
                 return newPasswordObj.toString().getBytes();

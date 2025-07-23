@@ -40,9 +40,12 @@ public class ProductByCategoryActivity extends AppCompatActivity {
         adapter = new ProductAdapter(this, filteredList);
         recyclerView.setAdapter(adapter);
 
+        // Nhận tên danh mục từ Intent
         String selectedCategory = getIntent().getStringExtra("category");
+
         requestQueue = Volley.newRequestQueue(this);
 
+        // Gọi API để lọc sản phẩm theo danh mục
         fetchProductsByCategory(selectedCategory);
     }
 

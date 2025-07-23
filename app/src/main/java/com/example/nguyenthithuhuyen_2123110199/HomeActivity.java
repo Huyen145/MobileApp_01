@@ -32,7 +32,7 @@ public class HomeActivity extends AppCompatActivity {
     Button btnConfirmOrder;
     RecyclerView recyclerView;
     ArrayList<Product> productList;
-    CartAdapter adapter;
+    PayAdapter payAdapter;
 
     TextView tvSubtotal, tvDiscount, tvShippingFee, tvTotalPrice;
     LinearLayout layoutBankInfo;
@@ -53,15 +53,22 @@ public class HomeActivity extends AppCompatActivity {
         rbBankTransfer = findViewById(R.id.rbBankTransfer);
         btnConfirmOrder = findViewById(R.id.btnConfirmOrder);
         recyclerView = findViewById(R.id.recyclerViewCart);
-
         tvSubtotal = findViewById(R.id.tvSubtotal);
         tvDiscount = findViewById(R.id.tvDiscount);
         tvShippingFee = findViewById(R.id.tvShippingFee);
         tvTotalPrice = findViewById(R.id.tvTotalPrice);
-
         layoutBankInfo = findViewById(R.id.layoutBankInfo);
 
-        // Hiển thị hoặc ẩn thông tin ngân hàng
+        // Lấy thông tin người dùng đã đăng nhập
+        SharedPreferences userPref = getSharedPreferences("user", MODE_PRIVATE);
+        String fullName = userPref.getString("fullName", "");
+        String phone = userPref.getString("phone", "");
+        String address = userPref.getString("address", "");
+
+        etFullName.setText(fullName);
+        etPhone.setText(phone);
+        etAddress.setText(address);
+
         paymentMethodGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.rbBankTransfer) {
                 layoutBankInfo.setVisibility(View.VISIBLE);
@@ -70,7 +77,6 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        // Lấy dữ liệu từ SharedPreferences
         sharedPreferences = getSharedPreferences("cart", MODE_PRIVATE);
         String json = sharedPreferences.getString("cart_items", null);
 
@@ -82,31 +88,20 @@ public class HomeActivity extends AppCompatActivity {
             productList = new ArrayList<>();
         }
 
-        // Hiển thị danh sách sản phẩm
+        // Sử dụng PayAdapter thay vì CartAdapter
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new CartAdapter(productList, this, new CartAdapter.OnItemActionListener() {
-            @Override
-            public void onItemDelete(int position) {
-                // Trang thanh toán: không cho xoá sản phẩm
-            }
+        payAdapter = new PayAdapter(productList, this);
+        recyclerView.setAdapter(payAdapter);
 
-            @Override
-            public void onQuantityChanged() {
-                updateTotalPrice();
-                saveCartToSharedPreferences();
-            }
-        });
-
-        recyclerView.setAdapter(adapter);
         updateTotalPrice();
 
         btnConfirmOrder.setOnClickListener(v -> {
             String name = etFullName.getText().toString().trim();
-            String phone = etPhone.getText().toString().trim();
-            String address = etAddress.getText().toString().trim();
+            String phoneStr = etPhone.getText().toString().trim();
+            String addressStr = etAddress.getText().toString().trim();
             int selectedId = paymentMethodGroup.getCheckedRadioButtonId();
 
-            if (name.isEmpty() || phone.isEmpty() || address.isEmpty() || selectedId == -1) {
+            if (name.isEmpty() || phoneStr.isEmpty() || addressStr.isEmpty() || selectedId == -1) {
                 Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin!", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -117,15 +112,16 @@ public class HomeActivity extends AppCompatActivity {
 
             Toast.makeText(this, "Đặt hàng thành công!\nPhương thức: " + paymentMethod, Toast.LENGTH_LONG).show();
 
-            // Xoá giỏ hàng
+            // Xóa giỏ hàng
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.remove("cart_items");
             editor.apply();
 
             productList.clear();
-            adapter.notifyDataSetChanged();
+            payAdapter.notifyDataSetChanged();
             updateTotalPrice();
 
+            // Quay về trang chủ
             Intent intent = new Intent(HomeActivity.this, HomeActivity1.class);
             startActivity(intent);
             finish();
@@ -149,13 +145,5 @@ public class HomeActivity extends AppCompatActivity {
         tvDiscount.setText("- Giảm giá: " + formatter.format(totalDiscount) + "₫");
         tvShippingFee.setText("+ Phí giao hàng: " + formatter.format(shippingFee) + "₫");
         tvTotalPrice.setText("Tổng cộng: " + formatter.format(finalTotal) + "₫");
-    }
-
-    private void saveCartToSharedPreferences() {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(productList);
-        editor.putString("cart_items", json);
-        editor.apply();
     }
 }

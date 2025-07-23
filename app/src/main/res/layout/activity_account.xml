@@ -131,12 +131,13 @@
     <!-- Đăng xuất -->
     <LinearLayout
         android:id="@+id/logoutSection"
+        android:layout_above="@id/bottom_navigation"
         android:layout_below="@id/personalInfo"
         android:layout_marginTop="16dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:orientation="horizontal"
-        android:gravity="center_vertical"
+
         android:paddingVertical="12dp"
         android:clickable="true"
         android:focusable="true"

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -11,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
@@ -20,6 +20,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +36,7 @@ public class Product_Detail extends AppCompatActivity {
     private List<Product> relatedList = new ArrayList<>();
     private ProductAdapter adapter;
     private RecyclerView relatedProductsRecycler;
-
+    private Product product;
     private String currentCategory = "";
 
     @Override
@@ -65,6 +66,9 @@ public class Product_Detail extends AppCompatActivity {
         int view = intent.getIntExtra("view", 0);
         currentCategory = intent.getStringExtra("category");
 
+        // Khởi tạo product từ dữ liệu nhận được
+        product = new Product(name, price, discount, imageUrl, currentCategory, description, view, quantity);
+
         // Ánh xạ View
         ImageView productImage = findViewById(R.id.product_image);
         TextView productName = findViewById(R.id.product_name);
@@ -84,10 +88,10 @@ public class Product_Detail extends AppCompatActivity {
 
         NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
 
-        if (name != null) productName.setText(name);
+        productName.setText(name);
         if (price != -1) productSellPrice.setText(formatter.format(price) + " đ");
         if (discount != -1) productRentPrice.setText(formatter.format(discount) + " đ");
-        if (description != null) productDescription.setText(description);
+        productDescription.setText(description);
         productQuantity.setText("Kho: " + quantity);
         productView.setText("Lượt xem: " + view);
 
@@ -97,10 +101,29 @@ public class Product_Detail extends AppCompatActivity {
 
         // RecyclerView sản phẩm liên quan
         relatedProductsRecycler = findViewById(R.id.rv_related_products);
-        relatedProductsRecycler.setLayoutManager(new GridLayoutManager(this, 2)); // 2 cột
+        relatedProductsRecycler.setLayoutManager(new GridLayoutManager(this, 2));
         adapter = new ProductAdapter(this, relatedList);
         relatedProductsRecycler.setAdapter(adapter);
 
+        // Nút Mua ngay
+        Button btnBuyNow = findViewById(R.id.btn_buy_now);
+        btnBuyNow.setOnClickListener(v -> {
+            // Ghi sản phẩm vào SharedPreferences để hiển thị tại HomeActivity
+            SharedPreferences cartPref = getSharedPreferences("cart", MODE_PRIVATE);
+            SharedPreferences.Editor editor = cartPref.edit();
+
+            ArrayList<Product> tempCart = new ArrayList<>();
+            tempCart.add(product);
+
+            Gson gson = new Gson();
+            String jsonCart = gson.toJson(tempCart);
+            editor.putString("cart_items", jsonCart);
+            editor.apply();
+
+            // Mở màn hình thanh toán
+            Intent paymentIntent = new Intent(Product_Detail.this, HomeActivity.class);
+            startActivity(paymentIntent);
+        });
 
         // Gọi API lấy sản phẩm liên quan
         fetchRelatedProducts();
@@ -150,14 +173,7 @@ public class Product_Detail extends AppCompatActivity {
                             int quantity = obj.getInt("quantity");
 
                             relatedList.add(new Product(
-                                    productName,
-                                    price,
-                                    discount,
-                                    image,
-                                    category,
-                                    description,
-                                    view,
-                                    quantity
+                                    productName, price, discount, image, category, description, view, quantity
                             ));
                         }
 
